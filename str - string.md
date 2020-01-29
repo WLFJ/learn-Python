@@ -32,6 +32,13 @@ class str(objrct=b'', encoding='utf-8', errors='strict')
 
 在使用类型转换时系统会临时将LC_CTYPE设置为LC_NUMERIC来进行本地化计算，这可能影响到其他线程。
 
+在传入数组或者字典时前面要加上对应的星号
+
+```python
+user = {'name' : "Tom", 'age' : 15}
+'{name} 的年龄是：{age}'.format(**user)
+```
+
 #### 参数使用字典映射
 
 `str.format_map(mapping)`
@@ -370,5 +377,87 @@ count为替换次数
 
 三个参数——在两个的基础上，指定失配时的替换
 
+## Python推荐的字符串格式化
 
+花括号包扩表达式，要显示花括号使用`{{}}。
 
+格式为：`{表达式!转换函数:内嵌属性}`
+
+```python
+>>> name = "Fred"
+>>> f"He said his name is {name!r}."
+"He said his name is 'Fred'."
+>>> f"He said his name is {repr(name)}."  # repr() is equivalent to !r
+"He said his name is 'Fred'."
+>>> width = 10
+>>> precision = 4
+>>> value = decimal.Decimal("12.34567")
+>>> f"result: {value:{width}.{precision}}"  # nested fields
+'result:      12.35'
+>>> today = datetime(year=2017, month=1, day=27)
+>>> f"{today:%B %d, %Y}"  # using date format specifier
+'January 27, 2017'
+>>> number = 1024
+>>> f"{number:#0x}"  # using integer format specifier
+'0x400'
+```
+
+转换函数可以指定为：`!s for str()` `!a for ascii` `!r for repr()`
+
+里面不能含有反斜杠，必须添加则将其抽出成变量传入。
+
+格式化字符串不能用来生成文档。
+
+#### 内嵌属性说明
+
+`[[填充字符]填充方法][数字标记][是否添加前缀#][0][长度][分组标志][.精度][类型]`
+
+* 填充方法
+
+> | Option | Meaning                                                      |
+> | :----- | :----------------------------------------------------------- |
+> | `'<'`  | Forces the field to be left-aligned within the available space (this is the default for most objects). |
+> | `'>'`  | Forces the field to be right-aligned within the available space (this is the default for numbers). |
+> | `'='`  | 在标志和数字中间默认填充0                                    |
+> | `'^'`  | Forces the field to be centered within the available space.  |
+
+* 数字标记
+
+| Option | Meaning                                                      |
+| :----- | :----------------------------------------------------------- |
+| `'+'`  | indicates that a sign should be used for both positive as well as negative numbers. |
+| `'-'`  | indicates that a sign should be used only for negative numbers (this is the default behavior). |
+| space  | 正数显示空格，负数显示负号                                   |
+
+* 是否添加前缀
+
+对于Hex 和 Oct类型，在前面添加0x或者0o
+
+* 分组标志
+
+`,or_`
+
+* 类型
+
+| Type  | Meaning                                                      |
+| :---- | :----------------------------------------------------------- |
+| `'b'` | Binary format. Outputs the number in base 2.                 |
+| `'c'` | Character. Converts the integer to the corresponding unicode character before printing. |
+| `'d'` |                                                              |
+| `'o'` |                                                              |
+| `'x'` |                                                              |
+| `'X'` |                                                              |
+| `'n'` | 与d相同                                                      |
+| None  | d                                                            |
+
+| Type  | Meaning                                               |
+| :---- | :---------------------------------------------------- |
+| `'e'` | 科学计数法，默认精度为6                               |
+| `'E'` |                                                       |
+| `'f'` |                                                       |
+| `'F'` |                                                       |
+| `'g'` | 根据大小自动转换为浮点保留或者科学计数法。默认精度为6 |
+| `'G'` |                                                       |
+| `'n'` | 同g，不过是本地化的                                   |
+| `'%'` | 百分数                                                |
+| None  | 同g。在小数上至少保留一位，并且会以合适的精度显示数字 |
